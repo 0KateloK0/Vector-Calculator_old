@@ -1,36 +1,57 @@
 function Vector (options) {
-
 	// vector coords
-	if (!(typeof options.start === "undefined")) {
-		this.start.x = options.start.x || 0;
-		this.start.y = options.start.y || 0;
-		this.start.z = options.start.z || 0;
-	} else {
-		this.start.x = 0;
-		this.start.y = 0;
-		this.start.z = 0;
-	}
+	if (!(typeof options.start === "undefined"))
+		this.start = {
+			x: options.start.x || 0,
+			y: options.start.y || 0,
+			z: options.start.z || 0
+		}
+	else
+		this.start = {
+			x: 0,
+			y: 0,
+			z: 0
+		}
 
 	// vector projections
-	this.vx = options.x || 0;
-	this.vy = options.y || 0;
-	this.vz = options.z || 0;
+	this.vx = options.vx || 0;
+	this.vy = options.vy || 0;
+	this.vz = options.vz || 0;
 
 
 	/**
 	 * @return {Number} vector's abs
 	 */
-	this.abs = function () {
-		return Math.sqrt( this.x * this.x + this.y * this.y + this.z * this.z );
-	}
+	Object.defineProperty(this, "abs", {
+		get: function () {
+			return Math.sqrt( this.vx * this.vx + this.vy * this.vy + this.vz * this.vz );
+		},
+		set: function (num) {
+			var angle = this.angle;
+			this.vx = num * Math.cos(angle % Math.PI) * sign(this.vx);
+			this.vy = num * Math.sin(angle % Math.PI) * sign(this.vy);
+			// добавить vz
+		}
+	});
 
 	/**
 	 * @return {Number} angle with ox in radians
 	 */
-	this.angle = function () {
-		if (this.x == 0)
-			return Math.PI / 2;
-		return Math.atan(this.y / this.x);
+	Object.defineProperty(this, "angle", {
+		get: function () {
+			if (this.vx == 0)
+				return Math.PI / 2;
+			return Math.atan( this.vy / this.vx );
+		},
+		set: function (num) {
+			this.vx = this.abs * Math.cos(num % Math.PI) * sign(this.vx);
+			this.vy = this.abs * Math.sin(num % Math.PI) * sign(this.vy);
+			// добавить vz
+		}
+	});
+
+	function sign (num) {
+		return num >= 0 ? 1 : -1;
 	}
 
 	/**
