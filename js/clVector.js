@@ -83,4 +83,20 @@ function Vector (options) {
 			vz: this.vz * num
 		});
 	}
+
+	/**
+	 * finds angle in radians between this vector and another (it may be negative)
+	 * @param  {Vector} vector
+	 */
+	this.angleBetween = function (vector) {
+		return this.angle() - vector.angle();
+	}
+
+	/**
+	 * finds scalar multiplication of this vector and another vector
+	 * @param  {Vector} vector
+	 */
+	this.scMultip = function (vector) {
+		return this.abs() * vector.abs() * this.angleBetween(vector);
+	}
 }
