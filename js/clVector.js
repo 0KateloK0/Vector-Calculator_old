@@ -18,6 +18,7 @@ function Vector (options) {
 	this.vy = options.vy || 0;
 	this.vz = options.vz || 0;
 
+	// algebraical functions
 
 	/**
 	 * @return {Number} vector's abs
@@ -44,8 +45,9 @@ function Vector (options) {
 			return Math.atan( this.vy / this.vx );
 		},
 		set: function (num) {
-			this.vx = this.abs * Math.cos(num % Math.PI) * sign(this.vx);
-			this.vy = this.abs * Math.sin(num % Math.PI) * sign(this.vy);
+			var abs = this.abs;
+			this.vx = abs * Math.cos(num % Math.PI) * sign(this.vx);
+			this.vy = abs * Math.sin(num % Math.PI) * sign(this.vy);
 			// добавить vz
 		}
 	});
@@ -119,5 +121,9 @@ function Vector (options) {
 	 */
 	this.scMultip = function (vector) {
 		return this.abs() * vector.abs() * this.angleBetween(vector);
+	}
+
+	this.toString = function () {
+		return 'vx: ' + this.vx + '; vy: ' + this.vy;
 	}
 }
