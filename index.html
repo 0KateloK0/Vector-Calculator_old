@@ -30,5 +30,21 @@
 	<script type="text/javascript" src="js/clVector.js"></script>
 	<script type="text/javascript" src="js/clVectorMath.js"></script>
 	<script type="text/javascript" src=""></script>
+	<script type="text/javascript">
+		v = new Vector({
+			vx: -5,
+			vy: -10,
+			start: {
+				x: 10,
+				y: 10
+			}
+		});
+
+		VM = new VectorMath({
+			canvas: document.getElementById('main-canvas')
+		});
+
+		VM.vis(v);
+	</script>
 </body>
 </html>

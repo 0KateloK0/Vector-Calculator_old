@@ -1,7 +1,7 @@
 function VectorMath(options) {
-	this.cvs = options.cvs;
+	this.cvs = options.canvas;
 	try {
-		this.ctx = options.cvs.getContext('2d');
+		this.ctx = options.canvas.getContext('2d');
 	} catch (err) {
 		alert('В аргументах конструктора VectorMath не хватает объекта типа canvas');
 	}
@@ -24,20 +24,33 @@ function VectorMath(options) {
 	this.scale_in_coords = this.scale_in_coords0;
 	// чтобы из координат получить правильныые приксели надо поделить на масштаб
 	this.scale = this.scale_in_coords / this.scale_in_pixels;
+
+	this.vectors = [];
+
+	this.add = function(vector) {
+		this.vectors.push(vector);
+		this.redraw();
+	}
 	
 	/**
 	 * draw all vectors contains in this object and axises
 	 */
 	this.redraw = function() {
-		
+		this.ctx.clearRect(0, 0, this.w, this.h);
+		this.drawAxis();
+		this.vectors.foreach(this.vis);
 	}
 
 	this.drawAixs = function() {
 
 	}
 
+	/**
+	 * just visualizing vector
+	 * @param  {Vector} vector
+	 */
 	this.vis = function(vector) {
-
+		__vis__.call(this, vector, {x: vector.start.x, y: vector.start.y});
 	}
 
 	/**
@@ -46,6 +59,36 @@ function VectorMath(options) {
 	 * @param  {Object} tCoords temporary coordinates: {x: .., y: .., z: ..}
 	 */
 	function __vis__(vector, tCoords) {
+		this.ctx.beginPath();
+		// minus after this.oy is because on canvas y coordinates inverted
+		this.ctx.moveTo(this.ox + tCoords.x / this.scale, this.oy - tCoords.y / this.scale);
+		this.ctx.lineTo(this.ox + (tCoords.x + vector.vx) / this.scale, this.oy - (tCoords.y + vector.vy) / this.scale);
 
+		this.ctx.stroke();
+
+		// drawTriangleWithSide.call(this, tCoords.x + vector.vx, tCoords.y + vector.vy, 10, vector.angle);
+	}
+
+	/**
+	 * draws trinagle with side by angle (if angle is undefined it'll be stand directly)
+	 * @param  {Number} x0    x coordinate of ending peak
+	 * @param  {Number} y0    y coordinate of ending peak
+	 * @param  {Number} side  side length
+	 * @param  {Number in radinas} angle angle of vector
+	 */
+	function drawTriangleWithSide(x0, y0, side, angle) {
+		this.ctx.beginPath();
+
+		this.ctx.moveTo(this.ox + x0 / this.scale, this.oy - y0 / this.scale);
+
+		this.ctx.lineTo(this.ox + x0 / this.scale - side * Math.cos(-Math.PI / 3 - angle),
+						this.oy - y0 / this.scale + side * Math.sin(-Math.PI / 3 - angle));
+
+		this.ctx.lineTo(this.ox + x0 / this.scale + side * Math.cos(-Math.PI / 3 + angle),
+						this.oy - y0 / this.scale - side * Math.sin(-Math.PI / 3 + angle));
+
+		this.ctx.lineTo(this.ox + x0 / this.scale, this.oy - y0 / this.scale);
+
+		this.ctx.fill();
 	}
 }
