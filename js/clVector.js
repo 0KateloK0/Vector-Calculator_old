@@ -1,4 +1,4 @@
-function Vector (options) {
+function Vector(options) {
 	// vector coords
 	if (!(typeof options.start === "undefined"))
 		this.start = {
