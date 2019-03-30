@@ -1,3 +1,5 @@
+// VectorMAth creating as object because it's need to be binded to canvas
+
 function VectorMath(options) {
 	this.cvs = options.canvas;
 	try {
@@ -57,14 +59,30 @@ function VectorMath(options) {
 
 		this.ctx.stroke();
 
-		for (var i = Math.floor( this.min_x * this.scale ) - 1; i < Math.floor( (this.min_x + this.w) * this.scale ); i++) {
+		// vertical lines and numbers
+		for (var i = Math.floor( this.min_x * this.scale ) - 1;
+				 i < Math.floor( (this.min_x + this.w) * this.scale ) + 1; i++) {
 			var x = ((this.min_x + this.w) * this.scale - i) / this.scale;
-			this.ctx.strokeStyle = 'black';
-			this.ctx.strokeText(-i, x - 5, this.oy + 15);
-			line(this.ctx, x, this.oy - 3, x, this.oy + 3);
 			this.ctx.strokeStyle = 'silver';
 			line(this.ctx, x, 0, x, this.h);
+			this.ctx.strokeStyle = 'black';
+			line(this.ctx, x, this.oy - 3, x, this.oy + 3);
+			this.ctx.strokeText(-i, x - 5, this.oy + 15);
 		}
+
+		// horizontal lines and numbers
+		for (var i = Math.floor( this.min_y * this.scale ) - 1;
+				 i < Math.floor( (this.min_y  + this.h) * this.scale ) + 1; i++) {
+			if (i != 0) { // if i == 0, zero appears twice
+				var y = ((this.min_y + this.h) * this.scale - i) / this.scale;
+				this.ctx.strokeStyle = 'silver';
+				line(this.ctx, 0, y, this.w, y);
+				this.ctx.strokeStyle = 'black';
+				line(this.ctx, this.ox - 3, y, this.ox + 3, y);
+				this.ctx.strokeText(i, this.ox - 15, y + 5);
+			}
+		}
+
 		this.ctx.strokeStyle = "black";
 	}
 
@@ -89,6 +107,7 @@ function VectorMath(options) {
 	 * @param  {Object} tCoords temporary coordinates: {x: .., y: .., z: ..}
 	 */
 	function __vis__(vector, tCoords) {
+		this.ctx.lineWidth = 3;
 		this.ctx.beginPath();
 		// minus after this.oy is because on canvas y coordinates inverted
 		this.ctx.moveTo(this.ox + tCoords.x / this.scale, this.oy - tCoords.y / this.scale);
@@ -96,6 +115,7 @@ function VectorMath(options) {
 
 		this.ctx.stroke();
 
+		this.ctx.lineWidth = 0;
 		// drawTriangleWithSide.call(this, tCoords.x + vector.vx, tCoords.y + vector.vy, 10, vector.angle);
 	}
 
