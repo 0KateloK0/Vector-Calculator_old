@@ -38,11 +38,41 @@ function VectorMath(options) {
 	this.redraw = function() {
 		this.ctx.clearRect(0, 0, this.w, this.h);
 		this.drawAxis();
-		this.vectors.foreach(this.vis);
+		// при выполнении через forEach теряется контекст
+		for (var i = 0; i < this.vectors.length; i++) {
+			(this.vis).call(this, this.vectors[i]);
+		}
 	}
 
-	this.drawAixs = function() {
+	this.drawAxis = function() {
+		this.ctx.strokeStyle = "black";
 
+		this.ctx.beginPath();
+
+		this.ctx.moveTo(this.ox, 0);
+		this.ctx.lineTo(this.ox, this.h);
+
+		this.ctx.moveTo(0, this.oy);
+		this.ctx.lineTo(this.w, this.oy);
+
+		this.ctx.stroke();
+
+		for (var i = Math.floor( this.min_x * this.scale ) - 1; i < Math.floor( (this.min_x + this.w) * this.scale ); i++) {
+			var x = ((this.min_x + this.w) * this.scale - i) / this.scale;
+			this.ctx.strokeStyle = 'black';
+			this.ctx.strokeText(-i, x - 5, this.oy + 15);
+			line(this.ctx, x, this.oy - 3, x, this.oy + 3);
+			this.ctx.strokeStyle = 'silver';
+			line(this.ctx, x, 0, x, this.h);
+		}
+		this.ctx.strokeStyle = "black";
+	}
+
+	function line(c, x0, y0, x1, y1) {
+		c.beginPath();
+		c.moveTo(x0, y0);
+		c.lineTo(x1, y1);
+		c.stroke();
 	}
 
 	/**
