@@ -77,7 +77,7 @@ function Vector(options) {
 	 * substracts another vector from this
 	 * @param  {Vector} vector
 	 */
-	this.minus = function (vector) {
+	this.sub = function (vector) {
 		return new Vector({
 			start: {
 				x: this.start.x + this.vx,
@@ -112,7 +112,7 @@ function Vector(options) {
 	 * @param  {Vector} vector
 	 */
 	this.angleBetween = function (vector) {
-		return this.angle() - vector.angle();
+		return this.angle - vector.angle;
 	}
 
 	/**
@@ -120,7 +120,7 @@ function Vector(options) {
 	 * @param  {Vector} vector
 	 */
 	this.scMultip = function (vector) {
-		return this.abs() * vector.abs() * this.angleBetween(vector);
+		return this.abs * vector.abs * this.angleBetween(vector);
 	}
 
 	this.toString = function () {
