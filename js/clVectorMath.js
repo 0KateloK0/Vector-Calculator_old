@@ -11,6 +11,8 @@ function VectorMath(options) {
 	this.w = this.cvs.width;
 	this.h = this.cvs.height;
 
+	// ToDO: переделать ox, oy, min_x, min_y, scales, vectors через get-a-set.
+
 	this.ox = this.w / 2;
 	this.oy = this.h / 2;
 
