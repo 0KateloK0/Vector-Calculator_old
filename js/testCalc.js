@@ -15,7 +15,7 @@ describe('calc', function() {
 		assert.equal( VC.calc('(10+2)*2'), 24 );
 		assert.equal( VC.calc('((5-5)+6)*2'), 12 );
 		assert.equal( VC.calc('((5-5)+6)*2+1'), 13 );
-		assert.equal( VC.calc('((10+2)-3*(5/5))/7-1'), 0 );
+		assert.equal( VC.calc('((10+2)-3*(5/5))/9-1'), 0 );
 	});
 	it('Убирает пробелы', function() {
 		assert.equal( VC.calc(' 10 + 2 - 5 / 5'), 11 );
@@ -27,7 +27,7 @@ describe('calc', function() {
 			assert.equal( VC.calc('v1+v0'), 'vx: -5; vy: -10' );
 		});
 		it('Скалярное произведение векторов', function() {
-			asssert.equal( VC.calc('(v1, v2)'), '' );
+			assert.equal( VC.calc('(v1, v2)'), '331.84367964460426' );
 		});
 	})
 })

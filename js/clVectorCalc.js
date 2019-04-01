@@ -12,6 +12,31 @@ function VectorCalc(options) {
 
 	// calculating all Exp
 	this.calc = function(Exp) {
+		// проверка скобочной посл на правильность
+		/*var br_amount = 0;
+		for (var i = 0; i < Exp.length i++) {
+			if (Exp[i] == '(')
+				br_amount++;
+			else if (Exp[i] == ')' && br_amount > 0)
+				br_amount--;
+			else
+				return NaN;
+		}
+		if (br_amount != 0)
+			return NaN;*/
+
+		var index = Exp.indexOf(')');
+		while (index >= 0) {
+			for (var i = index; i >= 0; i--)
+				if (Exp[i] == '(') {
+					var s = this.__calc__( Exp.slice(i + 1, index) );
+					Exp = Exp.slice(0, i) + s + Exp.slice(index + 1, Exp.length);
+					var index = Exp.indexOf(')');
+					break;
+				}
+			var index = Exp.indexOf(')');
+		}
+
 		return this.__calc__(Exp);
 	}
 
@@ -56,6 +81,13 @@ function VectorCalc(options) {
 		priority: 6
 	});
 
+	var scMultip = new Action({
+		use: function(a, b) {
+			return a.scMultip(b);
+		},
+		priority: 7
+	})
+
 	function Action(settings) {
 		this.use = settings.use;
 		this.priority = settings.priority || 1;
@@ -76,40 +108,41 @@ function VectorCalc(options) {
 		var acts = [];
 
 		nums = Exp.match(/\d+(\.\d+)?|v\d*/g);
-		nums = nums.map(function(a) {
-			if (a[0] == 'v')
-				return this.v[ a.slice(1, a.length) ];
+		// нельзя через map поскольку теряется контекст
+		for (var i = 0; i < nums.length; i++)
+			if (nums[i][0] == 'v')
+				nums[i] = this.v[ Number( nums[i].slice(1, nums[i].length) ) ];
 			else
-				return Number(a);
-		});
+				nums[i] = Number(nums[i]);
 
-		acts = Exp.match(/[\+\-\*\/]|cos|sin|tg/g);
-		acts = acts.map(function(a) {
-			switch(a) {
-				case '+': return plus;
-				case '-': return minus;
-				case '*': return dot;
-				case '/': return slash;
-				default:
-					break;
+		acts = Exp.match(/[\+\-\*\/\,]|cos|sin|tg/g);
+		if (acts !== null) {
+			acts = acts.map(function(a) {
+				switch(a) {
+					case '+': return plus;
+					case '-': return minus;
+					case '*': return dot;
+					case '/': return slash;
+					case ',': return scMultip;
+					default: break;
+				}
+			});
+
+			while (acts.length > 0) {
+				var max_index = findMaxByPriority(acts);
+				nums[max_index] = acts[max_index].use( nums[max_index], nums[ max_index + 1 ] );
+				acts.splice(max_index, 1);
+				nums.splice(max_index + 1, 1);
 			}
-		});
 
-		while (acts.length > 0) {
-			var max_index = findMaxByPriority(acts);
-			nums[max_index] = acts[max_index].use( nums[max_index], nums[ max_index + 1 ] );
-			acts.splice(max_index, 1);
-			nums.splice(max_index + 1, 1);
+			function findMaxByPriority(a) {
+				var best_i = 0;
+				for (var i = 0; i < a.length; i++)
+					if (a[i].priority > a[best_i].priority)
+						best_i = i;
+				return best_i;
+			}
 		}
-
-		function findMaxByPriority(a) {
-			var best_i = 0;
-			for (var i = 0; i < a.length; i++)
-				if (a[i].priority > a[best_i].priority)
-					best_i = i;
-			return best_i;
-		}
-
 		return nums[0];
 	}
 }
