@@ -98,8 +98,8 @@ function VectorCalc(options) {
 		while (acts.length > 0) {
 			var max_index = findMaxByPriority(acts);
 			nums[max_index] = acts[max_index].use( nums[max_index], nums[ max_index + 1 ] );
-			reduceFromPos(acts, max_index);
-			reduceFromPos(nums, max_index);
+			acts.splice(max_index, 1);
+			nums.splice(max_index + 1, 1);
 		}
 
 		function findMaxByPriority(a) {
@@ -108,10 +108,6 @@ function VectorCalc(options) {
 				if (a[i].priority > a[best_i].priority)
 					best_i = i;
 			return best_i;
-		}
-
-		function reduceFromPos(a, pos) {
-			a.splice(pos, 1);
 		}
 
 		return nums[0];
