@@ -12,18 +12,19 @@ function VectorCalc(options) {
 
 	// calculating all Exp
 	this.calc = function(Exp) {
+		Exp.split(' ').join('');
 		// проверка скобочной посл на правильность
-		/*var br_amount = 0;
-		for (var i = 0; i < Exp.length i++) {
+		var br_amount = 0;
+		for (var i = 0; i < Exp.length; i++) {
 			if (Exp[i] == '(')
 				br_amount++;
 			else if (Exp[i] == ')' && br_amount > 0)
 				br_amount--;
-			else
+			else if (Exp[i] == ')' && br_amount <= 0)
 				return NaN;
 		}
 		if (br_amount != 0)
-			return NaN;*/
+			return NaN;
 
 		var index = Exp.indexOf(')');
 		while (index >= 0) {
@@ -44,6 +45,9 @@ function VectorCalc(options) {
 		use: function(a, b) {
 			if (typeof a == "number" && typeof b == "number")
 				return a + b;
+			else if (typeof a == "number" && typeof b == "object" || 
+					typeof a == "object" && typeof b == "number")
+				return NaN;
 			else
 				return a.add(b);
 		},
@@ -54,6 +58,9 @@ function VectorCalc(options) {
 		use: function(a, b) {
 			if (typeof a == "number" && typeof b == "number")
 				return a - b;
+			else if (typeof a == "number" && typeof b == "object" || 
+					typeof a == "object" && typeof b == "number")
+				return NaN;
 			else
 				return a.sub(b);
 		},
@@ -64,8 +71,11 @@ function VectorCalc(options) {
 		use: function(a, b) {
 			if (typeof a == "number" && typeof b == "number")
 				return a * b;
-			else if (typeof a == "number" && typeof b == "Object")
+			else if (typeof a == "number" && typeof b == "object" ||
+					typeof a == "object" && typeof b == "number")
 				return a.scMultip(b);
+			else
+				return a.vectMultip(b);
 		},
 		priority: 6
 	});
@@ -73,10 +83,12 @@ function VectorCalc(options) {
 	var slash = new Action({
 		use: function(a, b) {
 			if (b == 0)
-				return undefined;
+				return NaN;
 			else 
 				if (typeof a == "number" && typeof b == "number")
 					return a / b;
+				else
+					return NaN;
 		},
 		priority: 6
 	});
@@ -85,7 +97,7 @@ function VectorCalc(options) {
 		use: function(a, b) {
 			return a.scMultip(b);
 		},
-		priority: 7
+		priority: 4
 	})
 
 	function Action(settings) {
@@ -107,7 +119,7 @@ function VectorCalc(options) {
 		var nums = [];
 		var acts = [];
 
-		nums = Exp.match(/\d+(\.\d+)?|v\d*/g);
+		nums = Exp.match(/\d+(\.\d*)?|v\d*/g);
 		// нельзя через map поскольку теряется контекст
 		for (var i = 0; i < nums.length; i++)
 			if (nums[i][0] == 'v')
@@ -130,7 +142,10 @@ function VectorCalc(options) {
 
 			while (acts.length > 0) {
 				var max_index = findMaxByPriority(acts);
-				nums[max_index] = acts[max_index].use( nums[max_index], nums[ max_index + 1 ] );
+				var res = acts[max_index].use( nums[max_index], nums[ max_index + 1 ] );
+				if ( typeof res != "object" && isNaN(res) )
+					return NaN;
+				nums[max_index] = res;
 				acts.splice(max_index, 1);
 				nums.splice(max_index + 1, 1);
 			}

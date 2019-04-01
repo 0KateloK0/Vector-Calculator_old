@@ -21,13 +21,28 @@ describe('calc', function() {
 		assert.equal( VC.calc(' 10 + 2 - 5 / 5'), 11 );
 	});
 	describe('Считает с векторами', function() {
-		it('Сложение/вычитание векторов', function() {
+		it('Выполняет сложение/вычитание векторов', function() {
 			assert.equal( VC.calc('v1+v2'), 'vx: 0; vy: -22' );
 			assert.equal( VC.calc('v1-v2'), 'vx: -10; vy: 2' );
 			assert.equal( VC.calc('v1+v0'), 'vx: -5; vy: -10' );
 		});
-		it('Скалярное произведение векторов', function() {
+		it('Считает скалярное произведение векторов', function() {
 			assert.equal( VC.calc('(v1, v2)'), '331.84367964460426' );
 		});
+	});
+	describe('Считывает ошибки пользователя', function() {
+		it('Выдает NaN если неправильная скобочная последовательность', assert( isNaN( VC.calc('(') ) ) );
+		it('Выдает NaN при делении на 0', assert( isNaN( VC.calc('2/0') ) ) );
+		describe('Выдает NaN при неправильных типизациях', function() {
+			it('При сложении/вычитании', function() {
+				assert( isNaN( VC.calc('v1+2') ) );
+				assert( isNaN( VC.calc('v1-2') ) );
+			} );
+			it('При делении', function() {
+				assert( isNaN( VC.calc('v1/2') ) );
+				assert( isNaN( VC.calc('v1/v2') ) );
+				assert( isNaN( VC.calc('2/v2') ) );
+			} )
+		})
 	})
 })
