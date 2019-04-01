@@ -1,18 +1,14 @@
 function VectorCalc(options) {
-	this.VM = options.VM;
+	this.VM = options.VectorMath;
 	try {
+		// временый массив векторов, необходим для вычислений. На его основе будет строиться нумерация векторов.
 		this.v = [];
-		this.v.push(new Vector()); // zero vector
+		this.v.push(new Vector({})); // zero vector
 		for (var i = 1; i < this.VM.vectors.length + 1; i++) 
-			this.v.push(this.VM.vector[i - 1]);
+			this.v.push(this.VM.vectors[i - 1]);
 	} catch (err) {
-		alert('В аргументах конструктора VectorMath не хватает объекта типа VectorMath');
+		alert('В аргументах конструктора VectorCalc не хватает объекта типа VectorMath');
 	}
-
-	// временый массив векторов, необходим для вычислений. На его основе будет строиться нумерация векторов.
-	this.__v = [];
-
-	this.__v.push(new Vector({})); // нулевой вектор
 
 	// calculating all Exp
 	this.calc = function(Exp) {
@@ -21,32 +17,32 @@ function VectorCalc(options) {
 
 	var plus = new Action({
 		use: function(a, b) {
-			if (typeof a == "Number" && typeof b == "Number")
+			if (typeof a == "number" && typeof b == "number")
 				return a + b;
 			else
 				return a.add(b);
 		},
-		priority: 6
+		priority: 5
 	});
 
 	var minus = new Action({
 		use: function(a, b) {
-			if (typeof a == "Number" && typeof b == "Number")
+			if (typeof a == "number" && typeof b == "number")
 				return a - b;
 			else
 				return a.sub(b);
 		},
-		priority: 6
+		priority: 5
 	});
 
 	var dot = new Action({
 		use: function(a, b) {
-			if (typeof a == "Number" && typeof b == "Number")
+			if (typeof a == "number" && typeof b == "number")
 				return a * b;
-			else if (typeof a == "Number" && typeof b == "Object")
+			else if (typeof a == "number" && typeof b == "Object")
 				return a.scMultip(b);
 		},
-		priority: 5
+		priority: 6
 	});
 
 	var slash = new Action({
@@ -54,22 +50,70 @@ function VectorCalc(options) {
 			if (b == 0)
 				return undefined;
 			else 
-				if (typeof a == "Number" && typeof b == "Number")
+				if (typeof a == "number" && typeof b == "number")
 					return a / b;
 		},
-		priority: 5
+		priority: 6
 	});
+
+	function Action(settings) {
+		this.use = settings.use;
+		this.priority = settings.priority || 1;
+		this.valueOf = function() { return this.use() }
+		this.toString = function() {
+			var res = this.use();
+			if (typeof res == "number")
+				return res;
+			else {
+				return 'v' + settings.v.length // добавить номер веткора
+			}
+		}
+	}
 
 	// calculating Exp without brakets
 	this.__calc__ = function(Exp) {
 		var nums = [];
 		var acts = [];
-	}
-}
 
-function Action(settings) {
-	this.use = settings.use;
-	this.priority = settings.priority || 1;
-	this.valueOf = function() { return this.use() }
-	this.toString = function() { return this.use() }
+		nums = Exp.match(/\d+(\.\d+)?|v\d*/g);
+		nums = nums.map(function(a) {
+			if (a[0] == 'v')
+				return this.v[ a.slice(1, a.length) ];
+			else
+				return Number(a);
+		});
+
+		acts = Exp.match(/[\+\-\*\/]|cos|sin|tg/g);
+		acts = acts.map(function(a) {
+			switch(a) {
+				case '+': return plus;
+				case '-': return minus;
+				case '*': return dot;
+				case '/': return slash;
+				default:
+					break;
+			}
+		});
+
+		while (acts.length > 0) {
+			var max_index = findMaxByPriority(acts);
+			nums[max_index] = acts[max_index].use( nums[max_index], nums[ max_index + 1 ] );
+			reduceFromPos(acts, max_index);
+			reduceFromPos(nums, max_index);
+		}
+
+		function findMaxByPriority(a) {
+			var best_i = 0;
+			for (var i = 0; i < a.length; i++)
+				if (a[i].priority > a[best_i].priority)
+					best_i = i;
+			return best_i;
+		}
+
+		function reduceFromPos(a, pos) {
+			a.splice(pos, 1);
+		}
+
+		return nums[0];
+	}
 }
