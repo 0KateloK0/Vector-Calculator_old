@@ -31,6 +31,10 @@ function VectorCalc(options) {
 			for (var i = index; i >= 0; i--)
 				if (Exp[i] == '(') {
 					var s = this.__calc__( Exp.slice(i + 1, index) );
+					if (s instanceof Vector) {
+						this.v.push(s);
+						s = 'v' + (this.length - 1);
+					}
 					Exp = Exp.slice(0, i) + s + Exp.slice(index + 1, Exp.length);
 					var index = Exp.indexOf(')');
 					break;
@@ -39,79 +43,6 @@ function VectorCalc(options) {
 		}
 
 		return this.__calc__(Exp);
-	}
-
-	var plus = new Action({
-		use: function(a, b) {
-			if (typeof a == "number" && typeof b == "number")
-				return a + b;
-			else if (typeof a == "number" && typeof b == "object" || 
-					typeof a == "object" && typeof b == "number")
-				return NaN;
-			else
-				return a.add(b);
-		},
-		priority: 5
-	});
-
-	var minus = new Action({
-		use: function(a, b) {
-			if (typeof a == "number" && typeof b == "number")
-				return a - b;
-			else if (typeof a == "number" && typeof b == "object" || 
-					typeof a == "object" && typeof b == "number")
-				return NaN;
-			else
-				return a.sub(b);
-		},
-		priority: 5
-	});
-
-	var dot = new Action({
-		use: function(a, b) {
-			if (typeof a == "number" && typeof b == "number")
-				return a * b;
-			else if (typeof a == "number" && typeof b == "object" ||
-					typeof a == "object" && typeof b == "number")
-				return a.scMultip(b);
-			else
-				return a.vectMultip(b);
-		},
-		priority: 6
-	});
-
-	var slash = new Action({
-		use: function(a, b) {
-			if (b == 0)
-				return NaN;
-			else 
-				if (typeof a == "number" && typeof b == "number")
-					return a / b;
-				else
-					return NaN;
-		},
-		priority: 6
-	});
-
-	var scMultip = new Action({
-		use: function(a, b) {
-			return a.scMultip(b);
-		},
-		priority: 4
-	})
-
-	function Action(settings) {
-		this.use = settings.use;
-		this.priority = settings.priority || 1;
-		this.valueOf = function() { return this.use() }
-		this.toString = function() {
-			var res = this.use();
-			if (typeof res == "number")
-				return res;
-			else {
-				return 'v' + settings.v.length // добавить номер веткора
-			}
-		}
 	}
 
 	// calculating Exp without brakets
@@ -159,5 +90,79 @@ function VectorCalc(options) {
 			}
 		}
 		return nums[0];
+	}
+
+	var plus = new Action({
+		use: function(a, b) {
+			if (typeof a == "number" && typeof b == "number")
+				return a + b;
+			else if (typeof a == "number" && typeof b == "object" || 
+					typeof a == "object" && typeof b == "number")
+				return NaN;
+			else
+				return a.add(b);
+		},
+		priority: 5
+	});
+
+	var minus = new Action({
+		use: function(a, b) {
+			if (typeof a == "number" && typeof b == "number")
+				return a - b;
+			else if (typeof a == "number" && typeof b == "object" || 
+					typeof a == "object" && typeof b == "number")
+				return NaN;
+			else
+				return a.sub(b);
+		},
+		priority: 5
+	});
+
+	var dot = new Action({
+		use: function(a, b) {
+			if (typeof a == "number" && typeof b == "number")
+				return a * b;
+			else if (typeof a == "number" && typeof b == "object")
+				return b.numMultip(a);
+			else if (typeof a == "object" && typeof b == "number")
+				return a.numMultip(b);
+			else
+				return a.vectMultip(b);
+		},
+		priority: 6
+	});
+
+	var slash = new Action({
+		use: function(a, b) {
+			if (b == 0)
+				return NaN;
+			else 
+				if (typeof a == "number" && typeof b == "number")
+					return a / b;
+				else
+					return NaN;
+		},
+		priority: 6
+	});
+
+	var scMultip = new Action({
+		use: function(a, b) {
+			return a.scMultip(b);
+		},
+		priority: 4
+	})
+
+	function Action(settings) {
+		this.use = settings.use;
+		this.priority = settings.priority || 1;
+		this.valueOf = function() { return this.use() }
+		this.toString = function() {
+			var res = this.use();
+			if (typeof res == "number")
+				return res;
+			else {
+				return 'v' + settings.v.length // добавить номер веткора
+			}
+		}
 	}
 }

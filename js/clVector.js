@@ -123,7 +123,10 @@ function Vector(options) {
 		return this.abs * vector.abs * this.angleBetween(vector);
 	}
 
-	this.valueOf = function() { return this.abs }
+	this.valueOf = function() {
+		return 'vx: ' + this.vx + '; vy: ' + this.vy;
+	}
+
 	this.toString = function () {
 		return 'vx: ' + this.vx + '; vy: ' + this.vy;
 	}
