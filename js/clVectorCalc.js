@@ -47,8 +47,8 @@ function VectorCalc(options) {
 		use: function(a, b) {
 			if (typeof a == "number" && typeof b == "number")
 				return a + b;
-			else if (typeof a == "number" && typeof b == "object" || 
-					typeof a == "object" && typeof b == "number")
+			else if (typeof a == "number" && b instanceof Vector || 
+					a instanceof Vector && typeof b == "number")
 				return NaN;
 			else
 				return a.add(b);
@@ -60,8 +60,8 @@ function VectorCalc(options) {
 		use: function(a, b) {
 			if (typeof a == "number" && typeof b == "number")
 				return a - b;
-			else if (typeof a == "number" && typeof b == "object" || 
-					typeof a == "object" && typeof b == "number")
+			else if (typeof a == "number" && b instanceof Vector || 
+					a instanceof Vector && typeof b == "number")
 				return NaN;
 			else
 				return a.sub(b);
@@ -73,8 +73,8 @@ function VectorCalc(options) {
 		use: function(a, b) {
 			if (typeof a == "number" && typeof b == "number")
 				return a * b;
-			else if (typeof a == "number" && typeof b == "object" ||
-					typeof a == "object" && typeof b == "number")
+			else if (typeof a == "number" && b instanceof Vector ||
+					a instanceof Vector && typeof b == "number")
 				return a.scMultip(b);
 			else
 				return a.vectMultip(b);
@@ -116,11 +116,27 @@ function VectorCalc(options) {
 	var asin = new TrigonomAction(a => Math.asin(a % (Math.PI * 2)));
 	var cos = new TrigonomAction(a => Math.cos(a % (Math.PI * 2)));
 	var acos = new TrigonomAction(a => Math.acos(a % (Math.PI * 2)));
-	var tan = new TrigonomAction(a => Math.tan(a % (Math.PI * 2)));
+	var tan = new TrigonomAction(a => {
+		if (a % Math.PI == Math.PI / 2)
+			return NaN;
+		return Math.tan(a % (Math.PI * 2));
+	});
 	var atan = new TrigonomAction(a => Math.atan(a % (Math.PI * 2)));
-	var ctg = new TrigonomAction(a => 1 / Math.tan(a % (Math.PI * 2)));
-	var sec = new TrigonomAction(a => 1 / Math.sin(a % (Math.PI * 2)));
-	var cosec = new TrigonomAction(a => 1 / Math.cos(a % (Math.PI * 2)))
+	var ctg = new TrigonomAction(a => {
+		if (a % Math.PI == 0)
+			return NaN;
+		return 1 / Math.tan(a % (Math.PI * 2));
+	});
+	var sec = new TrigonomAction(a => {
+		if (a % Math.PI == 0)
+			return NaN;
+		return 1 / Math.sin(a % (Math.PI * 2));
+	});
+	var cosec = new TrigonomAction(a => {
+		if (a % Math.PI == Math.PI / 2)
+			return NaN;
+		return 1 / Math.cos(a % (Math.PI * 2));
+	});
 
 
 	function Action(settings) {
@@ -140,7 +156,11 @@ function VectorCalc(options) {
 
 	function TrigonomAction(use) {
 		Action.call(this, {
-			use: use,
+			use: function(a) {
+				if (a instanceof Vector)
+					return NaN;
+				return use(a);
+			},
 			priority: 7,
 			unar: true
 		});
@@ -169,15 +189,12 @@ function VectorCalc(options) {
 				Exp = Exp.slice(0, index) + (res == -1 ? '-' : '+') + Exp.slice(index + a.length, Exp.length);
 			});
 
-		acts = Exp.match(/[\+\-\*\/\,]|cos|sin|tg|tan|asin|acos|atan|ctg|sec|cosec/g);
+		acts = Exp.match(/[\+\-\*\/\,]|sin|cos|tg|tan|asin|acos|atan|sec|cosec|ctg/g);
 		if (acts !== null) {
 			acts = acts.map(function(a) {
 				switch(a) {
 					case '+': return plus;
-					case '-':
-						if (Exp[0] == '-')
-							return unarMinus;
-						return minus;
+					case '-': return minus;
 					case '*': return dot;
 					case '/': return slash;
 					case ',': return scMultip;
