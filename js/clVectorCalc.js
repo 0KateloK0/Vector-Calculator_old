@@ -11,7 +11,7 @@ function VectorCalc(options) {
 	}
 
 	// calculating all Exp
-	this.calc = function(Exp) {
+	this.calc = function(Exp, deg) {
 		Exp.split(' ').join('');
 		// проверка скобочной посл на правильность
 		var br_amount = 0;
@@ -25,6 +25,8 @@ function VectorCalc(options) {
 		}
 		if (br_amount != 0)
 			return NaN;
+
+		this.angle_unit_is_rad = rad | true;
 
 		var index = Exp.indexOf(')');
 		while (index >= 0) {
@@ -98,11 +100,39 @@ function VectorCalc(options) {
 			return a.scMultip(b);
 		},
 		priority: 4
-	})
+	});
+
+	var unarMinus = new Action({
+		use: function(a) {
+			if (a instanceof Vector)
+				return a.numMultip(-1);
+			else
+				return -a;
+		},
+		priority: 8,
+		unar: true
+	});
+
+	var sin = new Action({
+		use: function(a) {
+			return Math.sin(a);
+		},
+		priority: 7,
+		unar: true
+	});
+
+	var cos = new Action({
+		use: function(a) {
+			return Math.cos(a);
+		},
+		priority: 7,
+		unar: true
+	});
 
 	function Action(settings) {
 		this.use = settings.use;
 		this.priority = settings.priority || 1;
+		this.unar = settings.unar || false;
 		this.valueOf = function() { return this.use() }
 		this.toString = function() {
 			var res = this.use();
@@ -119,35 +149,52 @@ function VectorCalc(options) {
 		var nums = [];
 		var acts = [];
 
-		nums = Exp.match(/\d+(\.\d*)?|v\d*/g);
+		nums = Exp.match(/\d+(\.\d*)?|v\d*|pi/g);
 		// нельзя через map поскольку теряется контекст
 		for (var i = 0; i < nums.length; i++)
 			if (nums[i][0] == 'v')
 				nums[i] = this.v[ Number( nums[i].slice(1, nums[i].length) ) ];
+			else if (nums[i] == 'pi')
+				nums[i] = Math.PI;
 			else
 				nums[i] = Number(nums[i]);
+
+		minuses = Exp.match(/[-+]{2,}/g);
+		if (minuses !== null)
+			minuses.forEach(function(a) {
+				var index = Exp.indexOf(a);
+				var res = eval(a + '1');
+				Exp = Exp.slice(0, index) + (res == -1 ? '-' : '+') + Exp.slice(index + a.length, Exp.length);
+			});
 
 		acts = Exp.match(/[\+\-\*\/\,]|cos|sin|tg/g);
 		if (acts !== null) {
 			acts = acts.map(function(a) {
 				switch(a) {
 					case '+': return plus;
-					case '-': return minus;
+					case '-':
+						if (Exp[0] == '-')
+							return unarMinus;
+						return minus;
 					case '*': return dot;
 					case '/': return slash;
 					case ',': return scMultip;
+					case 'sin': return sin;
+					case 'cos': return cos;
 					default: break;
 				}
 			});
 
 			while (acts.length > 0) {
 				var max_index = findMaxByPriority(acts);
-				var res = acts[max_index].use( nums[max_index], nums[ max_index + 1 ] );
-				if ( typeof res != "object" && isNaN(res) )
+				if (acts[max_index].unar) var res = acts[max_index].use( nums[max_index] );
+				else var res = acts[max_index].use( nums[max_index], nums[ max_index + 1 ] );
+				if ( !(res instanceof Vector) && isNaN(res) )
 					return NaN;
 				nums[max_index] = res;
+				if (!acts[max_index].unar)
+					nums.splice(max_index + 1, 1);
 				acts.splice(max_index, 1);
-				nums.splice(max_index + 1, 1);
 			}
 
 			function findMaxByPriority(a) {

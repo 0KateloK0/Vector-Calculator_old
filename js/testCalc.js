@@ -20,6 +20,9 @@ describe('calc', function() {
 	it('Убирает пробелы', function() {
 		assert.equal( VC.calc(' 10 + 2 - 5 / 5'), 11 );
 	});
+	it('Считает с тригонометрическими функциями', function() {
+		assert.equal( VC.calc() )
+	})
 	describe('Считает с векторами', function() {
 		it('Выполняет сложение/вычитание векторов', function() {
 			assert.equal( VC.calc('v1+v2'), 'vx: 0; vy: -22' );
