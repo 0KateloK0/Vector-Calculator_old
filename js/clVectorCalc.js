@@ -11,7 +11,7 @@ function VectorCalc(options) {
 	}
 
 	// calculating all Exp
-	this.calc = function(Exp, deg) {
+	this.calc = function(Exp, rad) {
 		Exp.split(' ').join('');
 		// проверка скобочной посл на правильность
 		var br_amount = 0;
@@ -106,28 +106,22 @@ function VectorCalc(options) {
 		use: function(a) {
 			if (a instanceof Vector)
 				return a.numMultip(-1);
-			else
-				return -a;
+			return -a;
 		},
 		priority: 8,
 		unar: true
 	});
 
-	var sin = new Action({
-		use: function(a) {
-			return Math.sin(a);
-		},
-		priority: 7,
-		unar: true
-	});
+	var sin = new TrigonomAction(a => Math.sin(a % (Math.PI * 2)));
+	var asin = new TrigonomAction(a => Math.asin(a % (Math.PI * 2)));
+	var cos = new TrigonomAction(a => Math.cos(a % (Math.PI * 2)));
+	var acos = new TrigonomAction(a => Math.acos(a % (Math.PI * 2)));
+	var tan = new TrigonomAction(a => Math.tan(a % (Math.PI * 2)));
+	var atan = new TrigonomAction(a => Math.atan(a % (Math.PI * 2)));
+	var ctg = new TrigonomAction(a => 1 / Math.tan(a % (Math.PI * 2)));
+	var sec = new TrigonomAction(a => 1 / Math.sin(a % (Math.PI * 2)));
+	var cosec = new TrigonomAction(a => 1 / Math.cos(a % (Math.PI * 2)))
 
-	var cos = new Action({
-		use: function(a) {
-			return Math.cos(a);
-		},
-		priority: 7,
-		unar: true
-	});
 
 	function Action(settings) {
 		this.use = settings.use;
@@ -144,17 +138,25 @@ function VectorCalc(options) {
 		}
 	}
 
+	function TrigonomAction(use) {
+		Action.call(this, {
+			use: use,
+			priority: 7,
+			unar: true
+		});
+	}
+
 	// calculating Exp without brakets
 	this.__calc__ = function(Exp) {
 		var nums = [];
 		var acts = [];
 
-		nums = Exp.match(/\d+(\.\d*)?|v\d*|pi/g);
+		nums = Exp.match(/\d+(\.\d*)?|v\d*|[pP][iI]/g);
 		// нельзя через map поскольку теряется контекст
 		for (var i = 0; i < nums.length; i++)
 			if (nums[i][0] == 'v')
 				nums[i] = this.v[ Number( nums[i].slice(1, nums[i].length) ) ];
-			else if (nums[i] == 'pi')
+			else if (nums[i].toLowerCase() == 'pi')
 				nums[i] = Math.PI;
 			else
 				nums[i] = Number(nums[i]);
@@ -167,7 +169,7 @@ function VectorCalc(options) {
 				Exp = Exp.slice(0, index) + (res == -1 ? '-' : '+') + Exp.slice(index + a.length, Exp.length);
 			});
 
-		acts = Exp.match(/[\+\-\*\/\,]|cos|sin|tg/g);
+		acts = Exp.match(/[\+\-\*\/\,]|cos|sin|tg|tan|asin|acos|atan|ctg|sec|cosec/g);
 		if (acts !== null) {
 			acts = acts.map(function(a) {
 				switch(a) {
@@ -181,6 +183,14 @@ function VectorCalc(options) {
 					case ',': return scMultip;
 					case 'sin': return sin;
 					case 'cos': return cos;
+					case 'tg':
+					case 'tan': return tan;
+					case 'atan': return atan;
+					case 'asin': return asin;
+					case 'acos': return acos;
+					case 'sec': return sec;
+					case 'cosec': return cosec;
+					case 'ctg': return cosec;
 					default: break;
 				}
 			});

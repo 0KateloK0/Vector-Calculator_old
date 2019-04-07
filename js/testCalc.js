@@ -21,7 +21,7 @@ describe('calc', function() {
 		assert.equal( VC.calc(' 10 + 2 - 5 / 5'), 11 );
 	});
 	it('Считает с тригонометрическими функциями', function() {
-		assert.equal( VC.calc() )
+		assert.equal( VC.calc('sin(2*pi)'), 0);
 	})
 	describe('Считает с векторами', function() {
 		it('Выполняет сложение/вычитание векторов', function() {
