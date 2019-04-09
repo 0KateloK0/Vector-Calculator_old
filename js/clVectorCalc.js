@@ -102,16 +102,6 @@ function VectorCalc(options) {
 		priority: 4
 	});
 
-	var unarMinus = new Action({
-		use: function(a) {
-			if (a instanceof Vector)
-				return a.numMultip(-1);
-			return -a;
-		},
-		priority: 8,
-		unar: true
-	});
-
 	var sin = new TrigonomAction(a => Math.sin(a % (Math.PI * 2)));
 	var asin = new TrigonomAction(a => Math.asin(a % (Math.PI * 2)));
 	var cos = new TrigonomAction(a => Math.cos(a % (Math.PI * 2)));
@@ -137,7 +127,6 @@ function VectorCalc(options) {
 			return NaN;
 		return 1 / Math.cos(a % (Math.PI * 2));
 	});
-
 
 	function Action(settings) {
 		this.use = settings.use;
@@ -181,15 +170,7 @@ function VectorCalc(options) {
 			else
 				nums[i] = Number(nums[i]);
 
-		minuses = Exp.match(/[-+]{2,}/g);
-		if (minuses !== null)
-			minuses.forEach(function(a) {
-				var index = Exp.indexOf(a);
-				var res = eval(a + '1');
-				Exp = Exp.slice(0, index) + (res == -1 ? '-' : '+') + Exp.slice(index + a.length, Exp.length);
-			});
-
-		acts = Exp.match(/[\+\-\*\/\,]|sin|cos|tg|tan|asin|acos|atan|sec|cosec|ctg/g);
+		acts = Exp.match(/[(\*)\/][\+-]|[\+\-\*\/\,]|sin|cos|tg|tan|asin|acos|atan|sec|cosec|ctg/g);
 		if (acts !== null) {
 			acts = acts.map(function(a) {
 				switch(a) {

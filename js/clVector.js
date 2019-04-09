@@ -123,6 +123,14 @@ function Vector(options) {
 		return this.abs * vector.abs * this.angleBetween(vector);
 	}
 
+	/**
+	 * this fnc finding projection on another vector
+	 * @param  {Vector} vector
+	 */
+	this.projection = function(vector) {
+		return this.abs * Math.cos( this.angleBetween(vector) );
+	}
+
 	this.valueOf = function() {
 		return 'vx: ' + this.vx + '; vy: ' + this.vy;
 	}
