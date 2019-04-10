@@ -160,7 +160,7 @@ function VectorCalc(options) {
 		var nums = [];
 		var acts = [];
 
-		nums = Exp.match(/\d+(\.\d*)?|v\d*|[pP][iI]/g);
+		nums = Exp.match(/\d+(\.\d*)?|v\d*|pi/gi);
 		// нельзя через map поскольку теряется контекст
 		for (var i = 0; i < nums.length; i++)
 			if (nums[i][0] == 'v')
@@ -170,7 +170,7 @@ function VectorCalc(options) {
 			else
 				nums[i] = Number(nums[i]);
 
-		acts = Exp.match(/[(\*)\/][\+-]|[\+\-\*\/\,]|sin|cos|tg|tan|asin|acos|atan|sec|cosec|ctg/g);
+		acts = Exp.match(/[(\*)\/][\+-]|[\+\-\*\/\,]|sin|cos|tg|tan|asin|acos|atan|sec|cosec|ctg/gi);
 		if (acts !== null) {
 			acts = acts.map(function(a) {
 				switch(a) {
