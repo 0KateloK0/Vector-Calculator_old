@@ -144,12 +144,12 @@ function VectorCalc(options) {
 	var sec = new TrigonomAction(a => {
 		if (a % Math.PI == 0)
 			return NaN;
-		return 1 / Math.sin(a % (Math.PI * 2));
+		return 1 / Math.cos(a % (Math.PI * 2));
 	});
 	var cosec = new TrigonomAction(a => {
 		if (a % Math.PI == Math.PI / 2)
 			return NaN;
-		return 1 / Math.cos(a % (Math.PI * 2));
+		return 1 / Math.sin(a % (Math.PI * 2));
 	});
 
 	function Action(settings) {
@@ -181,7 +181,7 @@ function VectorCalc(options) {
 
 	// calculating Exp without brakets
 	this.__calc__ = function(Exp) {
-		var all_symb = Exp.match(/\d+(\.\d*)?|v\d*|pi|[\+\-\*\/\,]|sin|cos|tg|tan|asin|acos|atan|sec|cosec|ctg/gi);
+		var all_symb = Exp.match(/\d+(\.\d*)?|v\d*|pi|[\+\-\*\/\,]|sin|cos|tg|tan|arcsin|arcos|arctan|sec|cosec|ctg/gi);
 		if (all_symb !== null) {
 			var v = this.v;
 			all_symb = all_symb.map(function(a, i, arr) {
@@ -202,9 +202,9 @@ function VectorCalc(options) {
 					case 'cos': return cos;
 					case 'tg':
 					case 'tan': return tan;
-					case 'atan': return atan;
-					case 'asin': return asin;
-					case 'acos': return acos;
+					case 'arctan': return atan;
+					case 'arcsin': return asin;
+					case 'arcos': return acos;
 					case 'sec': return sec;
 					case 'cosec': return cosec;
 					case 'ctg': return cosec;

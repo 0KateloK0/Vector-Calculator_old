@@ -22,6 +22,11 @@ describe('calc', function() {
 	});
 	it('Считает с тригонометрическими функциями', function() {
 		assert.equal( VC.calc('sin(2*pi)'), 0);
+		assert.equal( VC.calc('cos(2*pi)'), 1);
+		assert.equal( VC.calc('sin(2*pi)*sin(2*pi)+cos(2*pi)*cos(2*pi)'), 1);
+		assert.equal( VC.calc('arcos(1)'), 0);
+		assert.isBelow( Math.abs( VC.calc('sec(pi/3)') - Number.EPSILON), 2);
+		assert.isBelow( Math.abs( VC.calc('tg(pi/3)*tg(pi/3)+1') - Number.EPSILON), 4);
 	})
 	describe('Считает с векторами', function() {
 		it('Выполняет сложение/вычитание векторов', function() {
