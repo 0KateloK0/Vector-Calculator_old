@@ -73,9 +73,10 @@ function VectorCalc(options) {
 		use: function(a, b) {
 			if (typeof a == "number" && typeof b == "number")
 				return a * b;
-			else if (typeof a == "number" && b instanceof Vector ||
-					a instanceof Vector && typeof b == "number")
-				return a.scMultip(b);
+			else if (a instanceof Vector && typeof b == "number")
+				return a.numMultip(b);
+			else if (typeof a == "number" && b instanceof Vector)
+				return b.numMultip(a);
 			else
 				return a.vectMultip(b);
 		},
@@ -101,6 +102,29 @@ function VectorCalc(options) {
 		},
 		priority: 4
 	});
+
+	var unarMinus = new Action({
+		use: function(a) {
+			if (a == unarPlus) return unarMinus;
+			else if (a == unarMinus) return unarPlus;
+			else if (a instanceof Vector)
+				return a.numMultip(-1);
+			else
+				return -a;
+		},
+		unar: true,
+		priority: 8
+	});
+
+	var unarPlus = new Action({
+		use: function(a) {
+			if (a == unarPlus) return unarPlus;
+			else if (a == unarMinus) return unarMinus;
+			else return a;
+		},
+		unar: true,
+		priority: 8
+	})
 
 	var sin = new TrigonomAction(a => Math.sin(a % (Math.PI * 2)));
 	var asin = new TrigonomAction(a => Math.asin(a % (Math.PI * 2)));
@@ -157,25 +181,20 @@ function VectorCalc(options) {
 
 	// calculating Exp without brakets
 	this.__calc__ = function(Exp) {
-		var nums = [];
-		var acts = [];
-
-		nums = Exp.match(/\d+(\.\d*)?|v\d*|pi/gi);
-		// нельзя через map поскольку теряется контекст
-		for (var i = 0; i < nums.length; i++)
-			if (nums[i][0] == 'v')
-				nums[i] = this.v[ Number( nums[i].slice(1, nums[i].length) ) ];
-			else if (nums[i].toLowerCase() == 'pi')
-				nums[i] = Math.PI;
-			else
-				nums[i] = Number(nums[i]);
-
-		acts = Exp.match(/[(\*)\/][\+-]|[\+\-\*\/\,]|sin|cos|tg|tan|asin|acos|atan|sec|cosec|ctg/gi);
-		if (acts !== null) {
-			acts = acts.map(function(a) {
-				switch(a) {
-					case '+': return plus;
-					case '-': return minus;
+		var all_symb = Exp.match(/\d+(\.\d*)?|v\d*|pi|[\+\-\*\/\,]|sin|cos|tg|tan|asin|acos|atan|sec|cosec|ctg/gi);
+		if (all_symb !== null) {
+			var v = this.v;
+			all_symb = all_symb.map(function(a, i, arr) {
+				switch(a.toLowerCase()) {
+					case '+':
+						if (i == 0 || arr[i - 1] == '-'|| arr[i - 1] == '+' || arr[i - 1] == '*' || arr[i - 1] == '/')
+							return unarPlus;
+						else
+							return plus;
+					case '-': 
+						if (i == 0 || arr[i - 1] == '-'|| arr[i - 1] == '+' || arr[i - 1] == '*' || arr[i - 1] == '/')
+							return unarMinus;
+						else return minus;
 					case '*': return dot;
 					case '/': return slash;
 					case ',': return scMultip;
@@ -189,30 +208,35 @@ function VectorCalc(options) {
 					case 'sec': return sec;
 					case 'cosec': return cosec;
 					case 'ctg': return cosec;
-					default: break;
+					case 'pi': return Math.PI;
+					default: 
+						if (a[0] == 'v') return v[ Number( a.slice(1, a.length) ) ]
+						else return Number(a);
+						break;
 				}
-			});
+			}).filter(a => a !== undefined);
 
-			while (acts.length > 0) {
-				var max_index = findMaxByPriority(acts);
-				if (acts[max_index].unar) var res = acts[max_index].use( nums[max_index] );
-				else var res = acts[max_index].use( nums[max_index], nums[ max_index + 1 ] );
-				if ( !(res instanceof Vector) && isNaN(res) )
+			while (all_symb.length > 1) {
+				var max_index = findMaxByPriority(all_symb);
+				var unar = all_symb[max_index].unar;
+				if (unar) var res = all_symb[max_index].use( all_symb[max_index + 1] );
+				else var res = all_symb[max_index].use( all_symb[max_index - 1], all_symb[ max_index + 1 ] );
+				if ( !((res instanceof Vector) || (res instanceof Action)) && isNaN(res) )
 					return NaN;
-				nums[max_index] = res;
-				if (!acts[max_index].unar)
-					nums.splice(max_index + 1, 1);
-				acts.splice(max_index, 1);
+				all_symb[max_index] = res;
+				all_symb.splice(max_index + 1, 1);
+				if (!unar) all_symb.splice(max_index - 1, 1);
 			}
 
 			function findMaxByPriority(a) {
 				var best_i = 0;
 				for (var i = 0; i < a.length; i++)
-					if (a[i].priority > a[best_i].priority)
-						best_i = i;
+					if (a[i].priority !== undefined)
+						if (a[best_i].priority === undefined || a[i].priority > a[best_i].priority)
+							best_i = i
 				return best_i;
 			}
 		}
-		return nums[0];
+		return all_symb[0];
 	}
 }
