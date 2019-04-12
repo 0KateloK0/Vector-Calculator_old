@@ -27,7 +27,17 @@ describe('calc', function() {
 		assert.equal( VC.calc('arcos(1)'), 0);
 		assert.isBelow( Math.abs( VC.calc('sec(pi/3)') - Number.EPSILON), 2);
 		assert.isBelow( Math.abs( VC.calc('tg(pi/3)*tg(pi/3)+1') - Number.EPSILON), 4);
-	})
+	});
+	it('Работает с отрицательными числами', function() {
+		assert.equal( VC.calc('-1'), -1 );
+		assert.equal( VC.calc('-+1'), -1 );
+		assert.equal( VC.calc('-+-1'), 1 );
+		assert.equal( VC.calc('-+-v1'), 'vx: -5; vy: -10' );
+		assert.equal( VC.calc('-+-1*-1'), -1 );
+		assert.equal( VC.calc('-+-1*(-1)'), -1 );
+		assert.equal( VC.calc('-+-1*+(-1)'), -1 );
+		assert.equal( VC.calc('-+-1*+(-1)---2'), -3 );
+	});
 	describe('Считает с векторами', function() {
 		it('Выполняет сложение/вычитание векторов', function() {
 			assert.equal( VC.calc('v1+v2'), 'vx: 0; vy: -22' );
@@ -39,8 +49,13 @@ describe('calc', function() {
 		});
 	});
 	describe('Считывает ошибки пользователя', function() {
-		it('Выдает NaN если неправильная скобочная последовательность', assert( isNaN( VC.calc('(') ) ) );
-		it('Выдает NaN при делении на 0', assert( isNaN( VC.calc('2/0') ) ) );
+		it('Выдает NaN если неправильная скобочная последовательность', () => assert( isNaN( VC.calc('(') ) ) );
+		it('Выдает NaN при неправильном кол-ве команд', () => assert( isNaN( VC.calc('2+') ) ))
+		it('Выдает NaN при неправильных командах', () => assert( isNaN( VC.calc('co(pi)') ) ));
+		it('Выдает NaN при математических ошибках', () => {
+			assert( isNaN( VC.calc('tg(pi/2)') ) );
+			assert( isNaN( VC.calc('2/0') ) );
+		})
 		describe('Выдает NaN при неправильных типизациях', function() {
 			it('При сложении/вычитании', function() {
 				assert( isNaN( VC.calc('v1+2') ) );
@@ -50,7 +65,8 @@ describe('calc', function() {
 				assert( isNaN( VC.calc('v1/2') ) );
 				assert( isNaN( VC.calc('v1/v2') ) );
 				assert( isNaN( VC.calc('2/v2') ) );
-			} )
-		})
+			} );
+			it('При скалярном произведении', () => assert( isNaN( VC.calc('v1,2') ) ) );
+		});
 	})
 })

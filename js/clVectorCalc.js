@@ -12,7 +12,7 @@ function VectorCalc(options) {
 
 	// calculating all Exp
 	this.calc = function(Exp, rad) {
-		Exp.split(' ').join('');
+		Exp = Exp.split(' ').join('');
 		// проверка скобочной посл на правильность
 		var br_amount = 0;
 		for (var i = 0; i < Exp.length; i++) {
@@ -181,9 +181,11 @@ function VectorCalc(options) {
 
 	// calculating Exp without brakets
 	this.__calc__ = function(Exp) {
+		if (Exp == '') return 0;
 		var all_symb = Exp.match(/\d+(\.\d*)?|v\d*|pi|[\+\-\*\/\,]|sin|cos|tg|tan|arcsin|arcos|arctan|sec|cosec|ctg/gi);
 		if (all_symb !== null) {
 			var v = this.v;
+			if (all_symb.join('') != Exp) return NaN;
 			all_symb = all_symb.map(function(a, i, arr) {
 				switch(a.toLowerCase()) {
 					case '+':
@@ -211,10 +213,18 @@ function VectorCalc(options) {
 					case 'pi': return Math.PI;
 					default: 
 						if (a[0] == 'v') return v[ Number( a.slice(1, a.length) ) ]
-						else return Number(a);
-						break;
+						else if (Number(a) == a) return Number(a);
+						else return NaN;
 				}
 			}).filter(a => a !== undefined);
+
+			var nums_count = 0, acts_count = 0;
+			for (var i = 0; i < all_symb.length; i++) 
+				if ((all_symb[i] instanceof Vector) || (typeof all_symb[i] == 'number'))
+					nums_count++;
+				else if ((all_symb[i] instanceof Action) && !all_symb[i].unar)
+					acts_count++;
+			if (acts_count + 1 != nums_count) return NaN;
 
 			while (all_symb.length > 1) {
 				var max_index = findMaxByPriority(all_symb);
