@@ -103,6 +103,16 @@ function VectorCalc(options) {
 		priority: 4
 	});
 
+	var pow = new Action({
+		use: function(a, b) {
+			if (a == 0 && b == 0)
+				return NaN;
+			else
+				return Math.pow(a, b);
+		},
+		priority: 8
+	})
+
 	var unarMinus = new Action({
 		use: function(a) {
 			if (a == unarPlus) return unarMinus;
@@ -113,7 +123,7 @@ function VectorCalc(options) {
 				return -a;
 		},
 		unar: true,
-		priority: 8
+		priority: 10
 	});
 
 	var unarPlus = new Action({
@@ -123,7 +133,7 @@ function VectorCalc(options) {
 			else return a;
 		},
 		unar: true,
-		priority: 8
+		priority: 10
 	})
 
 	var sin = new TrigonomAction(a => Math.sin(a % (Math.PI * 2)));
@@ -182,24 +192,27 @@ function VectorCalc(options) {
 	// calculating Exp without brakets
 	this.__calc__ = function(Exp) {
 		if (Exp == '') return 0;
-		var all_symb = Exp.match(/\d+(\.\d*)?|v\d*|pi|[\+\-\*\/\,]|sin|cos|tg|tan|arcsin|arcos|arctan|sec|cosec|ctg/gi);
+		var all_symb = Exp.match(/\d+(\.\d*)?|v\d*|pi|[\+\-\*\/\,\^]|sin|cos|tg|tan|arcsin|arcos|arctan|sec|cosec|ctg/gi);
 		if (all_symb !== null) {
 			var v = this.v;
 			if (all_symb.join('') != Exp) return NaN;
 			all_symb = all_symb.map(function(a, i, arr) {
 				switch(a.toLowerCase()) {
 					case '+':
-						if (i == 0 || arr[i - 1] == '-'|| arr[i - 1] == '+' || arr[i - 1] == '*' || arr[i - 1] == '/')
+						if (i == 0 || arr[i - 1] == '-'|| arr[i - 1] == '+' || arr[i - 1] == '*' || arr[i - 1] == '/'
+							|| arr[i - 1] == '^')
 							return unarPlus;
 						else
 							return plus;
 					case '-': 
-						if (i == 0 || arr[i - 1] == '-'|| arr[i - 1] == '+' || arr[i - 1] == '*' || arr[i - 1] == '/')
+						if (i == 0 || arr[i - 1] == '-'|| arr[i - 1] == '+' || arr[i - 1] == '*' || arr[i - 1] == '/'
+							|| arr[i - 1] == '^')
 							return unarMinus;
 						else return minus;
 					case '*': return dot;
 					case '/': return slash;
 					case ',': return scMultip;
+					case '^': return pow;
 					case 'sin': return sin;
 					case 'cos': return cos;
 					case 'tg':
@@ -209,7 +222,7 @@ function VectorCalc(options) {
 					case 'arcos': return acos;
 					case 'sec': return sec;
 					case 'cosec': return cosec;
-					case 'ctg': return cosec;
+					case 'ctg': return ctg;
 					case 'pi': return Math.PI;
 					default: 
 						if (a[0] == 'v') return v[ Number( a.slice(1, a.length) ) ]
