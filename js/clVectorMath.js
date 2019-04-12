@@ -41,6 +41,8 @@ function VectorMath(options) {
 	 */
 	this.redraw = function() {
 		this.ctx.clearRect(0, 0, this.w, this.h);
+		this.ctx.lineWidth = 1;
+		this.ctx.strokeStyle = "black";
 		this.drawAxis();
 		// при выполнении через forEach теряется контекст
 		for (var i = 0; i < this.vectors.length; i++) {
@@ -117,8 +119,8 @@ function VectorMath(options) {
 
 		this.ctx.stroke();
 
-		this.ctx.lineWidth = 0;
-		// drawTriangleWithSide.call(this, tCoords.x + vector.vx, tCoords.y + vector.vy, 10, vector.angle);
+		this.ctx.lineWidth = 2;
+		drawTriangleWithSide.call(this, tCoords.x + vector.vx, tCoords.y + vector.vy, 25, vector.angle);
 	}
 
 	/**
@@ -132,15 +134,15 @@ function VectorMath(options) {
 		this.ctx.beginPath();
 
 		this.ctx.moveTo(this.ox + x0 / this.scale, this.oy - y0 / this.scale);
+		this.ctx.lineTo(this.ox + x0 / this.scale - side * Math.sin(Math.PI * 7 / 12 - angle),
+						this.oy - y0 / this.scale + side * Math.cos(Math.PI * 7 / 12 - angle));
 
-		this.ctx.lineTo(this.ox + x0 / this.scale - side * Math.cos(-Math.PI / 3 - angle),
-						this.oy - y0 / this.scale + side * Math.sin(-Math.PI / 3 - angle));
-
-		this.ctx.lineTo(this.ox + x0 / this.scale + side * Math.cos(-Math.PI / 3 + angle),
-						this.oy - y0 / this.scale - side * Math.sin(-Math.PI / 3 + angle));
+		this.ctx.moveTo(this.ox + x0 / this.scale, this.oy - y0 / this.scale);
+		this.ctx.lineTo(this.ox + x0 / this.scale - side * Math.cos(Math.PI / 12 + angle),
+						this.oy - y0 / this.scale + side * Math.sin(Math.PI / 12 + angle));
 
 		this.ctx.lineTo(this.ox + x0 / this.scale, this.oy - y0 / this.scale);
 
-		this.ctx.fill();
+		this.ctx.stroke();
 	}
 }

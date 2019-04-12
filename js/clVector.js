@@ -24,9 +24,7 @@ function Vector(options) {
 	 * @return {Number} vector's abs
 	 */
 	Object.defineProperty(this, "abs", {
-		get: function () {
-			return Math.sqrt( this.vx * this.vx + this.vy * this.vy + this.vz * this.vz );
-		},
+		get: () => Math.sqrt( this.vx * this.vx + this.vy * this.vy + this.vz * this.vz ),
 		set: function (num) {
 			var angle = this.angle;
 			this.vx = num * Math.cos(angle % Math.PI) * sign(this.vx);
@@ -39,11 +37,7 @@ function Vector(options) {
 	 * @return {Number} angle with ox in radians
 	 */
 	Object.defineProperty(this, "angle", {
-		get: function () {
-			if (this.vx == 0)
-				return Math.PI / 2;
-			return Math.atan( this.vy / this.vx );
-		},
+		get: () => Math.atan2(this.vy, this.vx),
 		set: function (num) {
 			var abs = this.abs;
 			this.vx = abs * Math.cos(num % Math.PI) * sign(this.vx);
@@ -52,9 +46,7 @@ function Vector(options) {
 		}
 	});
 
-	function sign (num) {
-		return num >= 0 ? 1 : -1;
-	}
+	function sign (num) { return num >= 0 ? 1 : -1 }
 
 	/**
 	 * adding another vector to this
