@@ -111,7 +111,9 @@ function VectorCalc(options) {
 				return Math.pow(a, b);
 		},
 		priority: 8
-	})
+	});
+
+	var ln = new fncAction(a => Math.log(a));
 
 	var unarMinus = new Action({
 		use: function(a) {
@@ -136,27 +138,27 @@ function VectorCalc(options) {
 		priority: 10
 	})
 
-	var sin = new TrigonomAction(a => Math.sin(a % (Math.PI * 2)));
-	var asin = new TrigonomAction(a => Math.asin(a % (Math.PI * 2)));
-	var cos = new TrigonomAction(a => Math.cos(a % (Math.PI * 2)));
-	var acos = new TrigonomAction(a => Math.acos(a % (Math.PI * 2)));
-	var tan = new TrigonomAction(a => {
+	var sin = new fncAction(a => Math.sin(a % (Math.PI * 2)));
+	var asin = new fncAction(a => Math.asin(a % (Math.PI * 2)));
+	var cos = new fncAction(a => Math.cos(a % (Math.PI * 2)));
+	var acos = new fncAction(a => Math.acos(a % (Math.PI * 2)));
+	var tan = new fncAction(a => {
 		if (a % Math.PI == Math.PI / 2)
 			return NaN;
 		return Math.tan(a % (Math.PI * 2));
 	});
-	var atan = new TrigonomAction(a => Math.atan(a % (Math.PI * 2)));
-	var ctg = new TrigonomAction(a => {
+	var atan = new fncAction(a => Math.atan(a % (Math.PI * 2)));
+	var ctg = new fncAction(a => {
 		if (a % Math.PI == 0)
 			return NaN;
 		return 1 / Math.tan(a % (Math.PI * 2));
 	});
-	var sec = new TrigonomAction(a => {
+	var sec = new fncAction(a => {
 		if (a % Math.PI == 0)
 			return NaN;
 		return 1 / Math.cos(a % (Math.PI * 2));
 	});
-	var cosec = new TrigonomAction(a => {
+	var cosec = new fncAction(a => {
 		if (a % Math.PI == Math.PI / 2)
 			return NaN;
 		return 1 / Math.sin(a % (Math.PI * 2));
@@ -177,7 +179,7 @@ function VectorCalc(options) {
 		}
 	}
 
-	function TrigonomAction(use) {
+	function fncAction(use) {
 		Action.call(this, {
 			use: function(a) {
 				if (a instanceof Vector)
@@ -192,7 +194,7 @@ function VectorCalc(options) {
 	// calculating Exp without brakets
 	this.__calc__ = function(Exp) {
 		if (Exp == '') return 0;
-		var all_symb = Exp.match(/\d+(\.\d*)?|v\d*|pi|[\+\-\*\/\,\^]|sin|cos|tg|tan|arcsin|arcos|arctan|sec|cosec|ctg/gi);
+		var all_symb = Exp.match(/\d+(\.\d*)?|v\d*|pi|[\+\-\*\/\,\^]|sin|cos|tg|tan|arcsin|arcos|arctan|sec|cosec|ctg|ln/gi);
 		if (all_symb !== null) {
 			var v = this.v;
 			if (all_symb.join('') != Exp) return NaN;
@@ -223,6 +225,7 @@ function VectorCalc(options) {
 					case 'sec': return sec;
 					case 'cosec': return cosec;
 					case 'ctg': return ctg;
+					case 'ln': return ln;
 					case 'pi': return Math.PI;
 					default: 
 						if (a[0] == 'v') return v[ Number( a.slice(1, a.length) ) ]

@@ -25,9 +25,12 @@ describe('calc', function() {
 		assert.equal( VC.calc('cos(2*pi)'), 1);
 		assert.equal( VC.calc('sin(2*pi)*sin(2*pi)+cos(2*pi)*cos(2*pi)'), 1);
 		assert.equal( VC.calc('arcos(1)'), 0);
-		assert.isBelow( Math.abs( VC.calc('sec(pi/3)') - Number.EPSILON), 2);
-		assert.isBelow( Math.abs( VC.calc('tg(pi/3)*tg(pi/3)+1') - Number.EPSILON), 4);
+		assert.isBelow( Math.abs( VC.calc('sec(pi/3)') - 2), Number.EPSILON * 16);
+		assert.isBelow( Math.abs( VC.calc('tg(pi/3)*tg(pi/3)+1') - 4), Number.EPSILON * 16);
 	});
+	it('Считает с логарифмическими функциями', function() {
+		assert.isBelow( Math.abs( VC.calc('ln(1000) / ln(10)') - 3) / 2, Number.EPSILON * 16)
+	})
 	it('Работает с отрицательными числами', function() {
 		assert.equal( VC.calc('-1'), -1 );
 		assert.equal( VC.calc('-+1'), -1 );
@@ -61,6 +64,7 @@ describe('calc', function() {
 			assert( isNaN( VC.calc('ctg(0)') ) );
 			assert( isNaN( VC.calc('2/0') ) );
 			assert( isNaN( VC.calc('0^0') ) );
+			assert( isNaN( VC.calc('ln(-1)') ) );
 		})
 		describe('Выдает NaN при неправильных типизациях', function() {
 			it('При сложении/вычитании', function() {
