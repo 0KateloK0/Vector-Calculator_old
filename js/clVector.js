@@ -40,13 +40,11 @@ function Vector(options) {
 		get: () => Math.atan2(this.vy, this.vx),
 		set: function (num) {
 			var abs = this.abs;
-			this.vx = abs * Math.cos(num % Math.PI) * sign(this.vx);
-			this.vy = abs * Math.sin(num % Math.PI) * sign(this.vy);
+			this.vx = abs * Math.cos(num % Math.PI);
+			this.vy = abs * Math.sin(num % Math.PI);
 			// добавить vz
 		}
 	});
-
-	function sign (num) { return num >= 0 ? 1 : -1 }
 
 	/**
 	 * adding another vector to this
@@ -121,6 +119,17 @@ function Vector(options) {
 	 */
 	this.projection = function(vector) {
 		return this.abs * Math.cos( this.angleBetween(vector) );
+	}
+
+	/**
+	 * this fnc decomposing vecotr on two another
+	 */
+	this.decomposition = function(v1, v2) {
+		var alpha = 180 - v1.angleBetween(v2);
+		var gamma = this.angleBetween(v1);
+		var x = this.abs * Math.sin(gamma) / Math.sin(alpha);
+		var y = this.abs * Math.sin(Math.PI - gamma - alpha) / Math.sin(alpha);
+		return {x: x / v1.abs, y: y / v2.abs}
 	}
 
 	this.valueOf = function() {

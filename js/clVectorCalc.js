@@ -194,6 +194,8 @@ function VectorCalc(options) {
 	// calculating Exp without brakets
 	this.__calc__ = function(Exp) {
 		if (Exp == '') return 0;
+
+		// ToDO: добавить возможность находить проекции векторов
 		var all_symb = Exp.match(/\d+(\.\d*)?|v\d*|pi|[\+\-\*\/\,\^]|sin|cos|tg|tan|arcsin|arcos|arctan|sec|cosec|ctg|ln/gi);
 		if (all_symb !== null) {
 			var v = this.v;
